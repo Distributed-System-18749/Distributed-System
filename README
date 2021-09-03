@@ -1,0 +1,6 @@
+1. open this module in IDEA.
+2. run test in Server class.
+3. start main class in LocalFaultDetector (in idea or command line).
+4. run test in Client class.
+
+What we should do next? Fix the messages like the project guide.
