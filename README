@@ -4,3 +4,9 @@
 4. run test in Client class.
 
 What we should do next? Fix the messages like the project guide.
+
+############
+Here is my personal opinions.Please point it out if there's a mistake.(From yiheyoung)
+############
+1. make the server support three clients (maybe it can be achieved through some asychoronous method)
+2. generally talk about the choice of project manager
