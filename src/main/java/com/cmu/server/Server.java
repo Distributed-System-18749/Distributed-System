@@ -1,10 +1,14 @@
 package com.cmu.server;
 
+import com.cmu.message.ClientServerMessage;
+import com.cmu.message.Direction;
+import com.cmu.message.HeartbeatMessage;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,35 +19,45 @@ import java.net.Socket;
  */
 public class Server {
 
+    private long myState = -1;
+
     @Test
     public void transfer() {
         ServerSocket serverSocket = null;
         Socket socket = null;
         InputStream inputStream = null;
-        ByteArrayOutputStream byteArrayOutputStream = null;
         OutputStream outputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        ObjectInputStream objectInputStream = null;
         try {
             serverSocket = new ServerSocket(18749);
-            byteArrayOutputStream = new ByteArrayOutputStream();
             while (true) {
                 socket = serverSocket.accept();
                 inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
-                byte[] buffer = new byte[1024];
-                int len = 0;
-                while ((len = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, len);
-                }
-                System.out.println(byteArrayOutputStream);
-                System.out.println("Client data has been processed!");
+                objectInputStream = new ObjectInputStream(inputStream);
+                objectOutputStream = new ObjectOutputStream(outputStream);
 
-                byte[] bytes = "Server Response!".getBytes();
-                outputStream.write(bytes);
+                Object input = objectInputStream.readObject();
+
+                if (input instanceof HeartbeatMessage) {
+                    System.out.println("[" + System.currentTimeMillis() + "] " + input + " Received");
+                    objectOutputStream.writeObject(input);
+                    System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
+                } else if (input instanceof ClientServerMessage) {
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " before processing " + input);
+                    myState = ((ClientServerMessage) input).getRequestNum();
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " after processing " + input);
+                    ((ClientServerMessage) input).setDirection(Direction.REPLY);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
+                    objectOutputStream.writeObject(input);
+                }
+
                 socket.shutdownOutput();
                 socket.close();
-                byteArrayOutputStream.reset();
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             if (serverSocket != null) {
@@ -67,9 +81,16 @@ public class Server {
                     e.printStackTrace();
                 }
             }
-            if (byteArrayOutputStream != null) {
+            if (objectInputStream != null) {
                 try {
-                    byteArrayOutputStream.close();
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (objectOutputStream != null) {
+                try {
+                    objectOutputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

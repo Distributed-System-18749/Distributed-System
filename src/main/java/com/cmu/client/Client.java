@@ -1,10 +1,13 @@
 package com.cmu.client;
 
+import com.cmu.message.ClientServerMessage;
+import com.cmu.message.Direction;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -21,28 +24,32 @@ public class Client {
         Socket socket = null;
         OutputStream outputStream = null;
         InputStream inputStream = null;
-        ByteArrayOutputStream byteArrayOutputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        ObjectInputStream objectInputStream = null;
+        ClientServerMessage message = new ClientServerMessage("C1",  "S1", 0L, Direction.REQUEST);
         try {
             inet = InetAddress.getByName("127.0.0.1");
             while (true) {
                 socket = new Socket(inet, 18749);
                 outputStream = socket.getOutputStream();
-                outputStream.write("Client Hello!".getBytes());
+                objectOutputStream = new ObjectOutputStream(outputStream);
+                objectOutputStream.writeObject(message);
+                System.out.println("[" + System.currentTimeMillis() + "]" + " Sent " + message);
 
                 socket.shutdownOutput();
 
                 inputStream = socket.getInputStream();
-                byteArrayOutputStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int len = 0;
-                while ((len = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, len);
+                objectInputStream = new ObjectInputStream(inputStream);
+                Object input = objectInputStream.readObject();
+                if (input instanceof ClientServerMessage) {
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
+                    message.incRequestNum();
                 }
-                System.out.println(byteArrayOutputStream);
+
                 socket.close();
                 Thread.sleep(1000);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             if (socket != null) {
@@ -66,13 +73,7 @@ public class Client {
                     e.printStackTrace();
                 }
             }
-            if (byteArrayOutputStream != null) {
-                try {
-                    byteArrayOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+
             System.out.println("Client End!");
         }
     }

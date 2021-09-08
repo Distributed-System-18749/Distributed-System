@@ -1,8 +1,11 @@
 package com.cmu.ldf;
 
-import java.io.ByteArrayOutputStream;
+import com.cmu.message.HeartbeatMessage;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -20,7 +23,9 @@ public class LocalFaultDetector {
         Socket socket = null;
         OutputStream outputStream = null;
         InputStream inputStream = null;
-        ByteArrayOutputStream byteArrayOutputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        ObjectInputStream objectInputStream = null;
+        HeartbeatMessage message = new HeartbeatMessage(1, 1);
 
         boolean check = true;
         int heartbeatFreq = 1000;
@@ -45,22 +50,23 @@ public class LocalFaultDetector {
             while (true) {
                 socket = new Socket(inet, 18749);
                 outputStream = socket.getOutputStream();
-                outputStream.write("LFD Hello!".getBytes());
+                objectOutputStream = new ObjectOutputStream(outputStream);
+                objectOutputStream.writeObject(message);
+                System.out.println(System.currentTimeMillis() + " " + message + " Sent");
 
                 socket.shutdownOutput();
 
                 inputStream = socket.getInputStream();
-                byteArrayOutputStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int len = 0;
-                while ((len = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, len);
+                objectInputStream = new ObjectInputStream(inputStream);
+                Object input = objectInputStream.readObject();
+                if (input instanceof HeartbeatMessage) {
+                    System.out.println(System.currentTimeMillis() + " " + input + " Received");
+                    message.incNum();
                 }
-                System.out.println(byteArrayOutputStream);
                 socket.close();
                 Thread.sleep(heartbeatFreq);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             if (socket != null) {
@@ -84,9 +90,16 @@ public class LocalFaultDetector {
                     e.printStackTrace();
                 }
             }
-            if (byteArrayOutputStream != null) {
+            if (objectInputStream != null) {
                 try {
-                    byteArrayOutputStream.close();
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (objectOutputStream != null) {
+                try {
+                    objectOutputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
