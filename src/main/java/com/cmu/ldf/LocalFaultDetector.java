@@ -17,8 +17,13 @@ import java.util.Scanner;
  */
 public class LocalFaultDetector {
 
-    //@Test
     public static void main(String[] args) {
+        System.out.println("Launching the LDF!");
+        LocalFaultDetector localFaultDetector = new LocalFaultDetector();
+        localFaultDetector.transfer();
+    }
+
+    public void transfer() {
         InetAddress inet;
         Socket socket = null;
         OutputStream outputStream = null;

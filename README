@@ -1,12 +1,12 @@
-1. open this module in IDEA.
-2. run test in Server class.
-3. start main class in LocalFaultDetector (in idea or command line).
-4. run test in Client class.
+My java version is openjdk8.
 
-What we should do next? Fix the messages like the project guide.
+How to use this distributed system?
 
-############
-Here is my personal opinions.Please point it out if there's a mistake.(From yiheyoung)
-############
-1. make the server support three clients (maybe it can be achieved through some asychoronous method)
-2. generally talk about the choice of project manager
+1. git clone this package
+2. run 'mvn clean compile'
+3. run 'cd target/classes'
+4. start the server by using 'java com.cmu.server.Server'
+5. use another command line session, run step 3 and start the ldf by using 'java java com.cmu.ldf.LocalFaultDetector'
+6. use another command line session, run step 3 and start the client1 by using 'java com.cmu.client.Client C1'
+7. use another command line session, run step 3 and start the client2 by using 'java com.cmu.client.Client C2'
+8. use another command line session, run step 3 and start the client3 by using 'java com.cmu.client.Client C3'

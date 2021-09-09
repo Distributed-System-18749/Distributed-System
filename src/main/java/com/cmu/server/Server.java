@@ -3,7 +3,6 @@ package com.cmu.server;
 import com.cmu.message.ClientServerMessage;
 import com.cmu.message.Direction;
 import com.cmu.message.HeartbeatMessage;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +20,12 @@ public class Server {
 
     private long myState = -1;
 
-    @Test
+    public static void main(String[] args) {
+        System.out.println("Launching the server!");
+        Server server = new Server();
+        server.transfer();
+    }
+
     public void transfer() {
         ServerSocket serverSocket = null;
         Socket socket = null;
