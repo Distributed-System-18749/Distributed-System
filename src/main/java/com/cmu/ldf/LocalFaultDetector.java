@@ -109,7 +109,7 @@ public class LocalFaultDetector {
                     e.printStackTrace();
                 }
             }
-            System.out.println("Client End!");
+            System.out.println("Server is dead!");
         }
     }
 }
