@@ -7,7 +7,7 @@ How to use this distributed system?
 2. run 'mvn clean compile'
 3. run 'cd target/classes'
 4. start the server by using 'java com.cmu.server.Server'
-5. use another command line session, run step 3 and start the ldf by using 'java java com.cmu.ldf.LocalFaultDetector'
+5. use another command line session, run step 3 and start the ldf by using 'java com.cmu.ldf.LocalFaultDetector'
 6. use another command line session, run step 3 and start the client1 by using 'java com.cmu.client.Client C1'
 7. use another command line session, run step 3 and start the client2 by using 'java com.cmu.client.Client C2'
 8. use another command line session, run step 3 and start the client3 by using 'java com.cmu.client.Client C3'
