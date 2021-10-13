@@ -1,5 +1,6 @@
 package com.cmu.ldf;
 
+import com.cmu.message.Direction;
 import com.cmu.message.HeartbeatMessage;
 import com.cmu.message.MembershipMessage;
 
@@ -22,7 +23,9 @@ public class ActiveHeartBeatThread implements Runnable, Report{
 
     private final int remotePort;
 
-    private final int replicaId;
+    private final String replicaName;
+
+    private final String sourceName;
 
     /**
      * true = live, false = dead
@@ -34,13 +37,15 @@ public class ActiveHeartBeatThread implements Runnable, Report{
      * @param heartbeatFreq heartbeatFreq heartbeat frequency
      * @param remoteAddress remoteAddress remote address without port number
      * @param remotePort remote port number
-     * @param replicaId replica id binds with
+     * @param replicaName replica name
+     * @param sourceName the name of this heartbeat thread
      */
-    public ActiveHeartBeatThread(int heartbeatFreq, String remoteAddress, int remotePort, int replicaId) {
+    public ActiveHeartBeatThread(int heartbeatFreq, String remoteAddress, int remotePort, String replicaName, String sourceName) {
         this.heartbeatFreq = heartbeatFreq;
         this.remoteAddress = remoteAddress;
         this.remotePort = remotePort;
-        this.replicaId = replicaId;
+        this.replicaName = replicaName;
+        this.sourceName = sourceName;
         replicaStatus = false;
     }
 
@@ -52,7 +57,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
         InputStream inputStream = null;
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
-        HeartbeatMessage message = new HeartbeatMessage(replicaId, 1);
+        HeartbeatMessage message = new HeartbeatMessage(sourceName, replicaName, 1, Direction.REQUEST);
         while (true) {
             boolean check = true;
             try {
@@ -75,12 +80,13 @@ public class ActiveHeartBeatThread implements Runnable, Report{
                 socket.close();
             } catch (IOException | ClassNotFoundException e) {
                 check = false;
-                System.out.println("HeartBeating the replica" + replicaId + " failed. Now try again.");
+                System.out.println("HeartBeating the " + replicaName + " failed. Now try again.");
             } finally {
                 if (check != replicaStatus) {
                     replicaStatus = check;
-                    MembershipMessage membershipMessage = new MembershipMessage(replicaId, replicaStatus);
+                    MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus);
                     // report replica status change to the higher level
+                    report(membershipMessage);
                 }
                 try {
                     Thread.sleep(heartbeatFreq);

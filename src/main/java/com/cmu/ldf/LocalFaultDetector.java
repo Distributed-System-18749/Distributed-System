@@ -38,7 +38,8 @@ public class LocalFaultDetector {
         new Thread(new ActiveHeartBeatAndReportThread(heartbeatFreq
                 , "127.0.0.1"
                 , 18749
-                , 1
+                , "server1"
+                , "lfd1"
                 , "127.0.0.1"
                 , 18755)).start();
     }

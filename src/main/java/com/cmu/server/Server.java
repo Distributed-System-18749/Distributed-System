@@ -46,6 +46,7 @@ public class Server {
 
                 if (input instanceof HeartbeatMessage) {
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Received");
+                    ((HeartbeatMessage) input).setDirection(Direction.REPLY);
                     objectOutputStream.writeObject(input);
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                 } else if (input instanceof ClientServerMessage) {

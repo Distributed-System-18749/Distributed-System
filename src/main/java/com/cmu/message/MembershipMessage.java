@@ -10,9 +10,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class MembershipMessage {
     /**
-     * target server replica id
+     * target server replica name
      */
-    private Integer replicaId;
+    private String replicaName;
     /**
      * true = add, false = remove
      */
@@ -21,7 +21,7 @@ public class MembershipMessage {
     @Override
     public String toString() {
         return "Membership change: " +
-                "<replicaId=" + replicaId +
+                "<replicaName=" + replicaName +
                 (addOrRemove ? ", add" : ", remove") +
                 '>';
     }

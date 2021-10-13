@@ -24,20 +24,21 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
      * @param heartbeatFreq heartbeatFreq heartbeat frequency
      * @param remoteAddress remoteAddress remote address without port number
      * @param remotePort remote port number
-     * @param replicaId replica id binds with
+     * @param replicaName replica name
+     * @param sourceName the name of this heartbeat thread
      * @param reportAddress report address when reporting membership change
      * @param reportPort report port number when reporting membership change
      */
-    public ActiveHeartBeatAndReportThread(int heartbeatFreq, String remoteAddress, int remotePort, int replicaId
-            , String reportAddress, int reportPort) {
-        super(heartbeatFreq, remoteAddress, remotePort, replicaId);
+    public ActiveHeartBeatAndReportThread(int heartbeatFreq, String remoteAddress, int remotePort
+            , String replicaName, String sourceName, String reportAddress, int reportPort) {
+        super(heartbeatFreq, remoteAddress, remotePort, replicaName, sourceName);
         this.reportAddress = reportAddress;
         this.reportPort = reportPort;
     }
 
     @Override
     public void report(MembershipMessage membershipMessage) {
-        System.out.println("Now start to report member ship change to: " + reportAddress + ":" + reportPort);
+        System.out.println("Now start to report membership change to: " + reportAddress + ":" + reportPort);
         InetAddress inet;
         Socket socket = null;
         OutputStream outputStream = null;

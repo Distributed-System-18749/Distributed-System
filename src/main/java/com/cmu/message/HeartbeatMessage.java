@@ -11,8 +11,10 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 public class HeartbeatMessage implements Serializable {
-    private Integer replicaId;
+    private String receiver;
+    private String sender;
     private Integer num;
+    private Direction direction;
 
     public void incNum() {
         num++;
@@ -20,9 +22,6 @@ public class HeartbeatMessage implements Serializable {
 
     @Override
     public String toString() {
-        return "<" +
-                "replicaId=" + replicaId +
-                ", num=" + num +
-                '>';
+        return "heartbeat_count: " + num + " " + sender + " " + direction + " heartbeat from " + receiver;
     }
 }

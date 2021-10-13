@@ -1,5 +1,6 @@
 package com.cmu.ldf;
 
+import com.cmu.message.Direction;
 import com.cmu.message.HeartbeatMessage;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class PassiveHeartBeatThread implements Runnable{
 
                     if (input instanceof HeartbeatMessage) {
                         System.out.println("[" + System.currentTimeMillis() + "] " + input + " Received");
+                        ((HeartbeatMessage) input).setDirection(Direction.REPLY);
                         objectOutputStream.writeObject(input);
                         System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                     }
