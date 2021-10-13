@@ -3,12 +3,14 @@ package com.cmu.message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @author gongyiming
  */
 @Data
 @AllArgsConstructor
-public class MembershipMessage {
+public class MembershipMessage implements Serializable {
     /**
      * target server replica name
      */

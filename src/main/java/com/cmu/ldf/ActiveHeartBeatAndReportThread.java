@@ -44,7 +44,6 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
         OutputStream outputStream = null;
         InputStream inputStream = null;
         ObjectOutputStream objectOutputStream = null;
-        ObjectInputStream objectInputStream = null;
         try {
             inet = InetAddress.getByName(reportAddress);
             socket = new Socket(inet, reportPort);
@@ -54,15 +53,8 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
             System.out.println(System.currentTimeMillis() + " " + membershipMessage + " Sent");
 
             socket.shutdownOutput();
-
-            inputStream = socket.getInputStream();
-            objectInputStream = new ObjectInputStream(inputStream);
-            Object input = objectInputStream.readObject();
-            if (input instanceof MembershipMessage) {
-                System.out.println(System.currentTimeMillis() + " " + input + " Received");
-            }
             socket.close();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (socket != null) {
@@ -79,20 +71,6 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
                     e.printStackTrace();
                 }
             }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (objectInputStream != null) {
-                try {
-                    objectInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             if (objectOutputStream != null) {
                 try {
                     objectOutputStream.close();
@@ -101,5 +79,6 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
                 }
             }
         }
+        System.out.println("Report membership change successfully!");
     }
 }
