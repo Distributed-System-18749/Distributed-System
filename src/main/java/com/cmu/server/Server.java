@@ -20,9 +20,15 @@ public class Server {
 
     private long myState = -1;
 
+    private final int port;
+
+    public Server(int port) {
+        this.port = port;
+    }
+
     public static void main(String[] args) {
         System.out.println("Launching the server!");
-        Server server = new Server();
+        Server server = new Server(Integer.parseInt(args[0]));
         server.transfer();
     }
 
@@ -34,7 +40,7 @@ public class Server {
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
         try {
-            serverSocket = new ServerSocket(18749);
+            serverSocket = new ServerSocket(port);
             while (true) {
                 socket = serverSocket.accept();
                 inputStream = socket.getInputStream();
@@ -51,7 +57,7 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                 } else if (input instanceof ClientServerMessage) {
                     System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " before processing " + input);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_" + ((ClientServerMessage) input).getServerName() + " = " + myState + " before processing " + input);
                     myState = ((ClientServerMessage) input).getRequestNum();
                     System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " after processing " + input);
                     ((ClientServerMessage) input).setDirection(Direction.REPLY);

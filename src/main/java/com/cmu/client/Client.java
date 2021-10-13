@@ -5,13 +5,9 @@ import com.cmu.message.Direction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author gongyiming
@@ -34,60 +30,38 @@ public class Client {
     }
 
     private void transfer() {
-        InetAddress inet;
-        Socket socket = null;
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        ObjectOutputStream objectOutputStream = null;
-        ObjectInputStream objectInputStream = null;
-        ClientServerMessage message = new ClientServerMessage(clientName,  "S1", 0L, Direction.REQUEST);
+        List<ClientServerMessage> clientServerMessages = new ArrayList<>();
+        clientServerMessages.add(new ClientServerMessage(clientName, "S1", 0L, Direction.REQUEST));
+        clientServerMessages.add(new ClientServerMessage(clientName, "S2", 0L, Direction.REQUEST));
+        clientServerMessages.add(new ClientServerMessage(clientName, "S3", 0L, Direction.REQUEST));
+        List<Integer> clientPorts = new ArrayList<>();
+        clientPorts.add(18749);
+        clientPorts.add(18750);
+        clientPorts.add(18751);
         try {
-            inet = InetAddress.getByName("127.0.0.1");
             while (true) {
-                socket = new Socket(inet, 18749);
-                outputStream = socket.getOutputStream();
-                objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(message);
-                System.out.println("[" + System.currentTimeMillis() + "]" + " Sent " + message);
-
-                socket.shutdownOutput();
-
-                inputStream = socket.getInputStream();
-                objectInputStream = new ObjectInputStream(inputStream);
-                Object input = objectInputStream.readObject();
-                if (input instanceof ClientServerMessage) {
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
-                    message.incRequestNum();
+                //new Scanner(System.in).nextLine();
+                List<FutureTask<ClientServerMessage>> futureTasks = new ArrayList<>();
+                for (int i = 0; i < clientServerMessages.size(); i++) {
+                    FutureTask<ClientServerMessage> task = new FutureTask<>(
+                            new MessageThread("127.0.0.1"
+                                    , clientPorts.get(i)
+                                    , clientServerMessages.get(i)));
+                    futureTasks.add(task);
+                    new Thread(task).start();
                 }
-
-                socket.close();
+                int i = 0;
+                while (!futureTasks.get(i).isDone()) {
+                    i++;
+                    if (i == futureTasks.size()) {
+                        i = 0;
+                    }
+                }
                 Thread.sleep(1000);
             }
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
             System.out.println("Client End!");
         }
     }

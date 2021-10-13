@@ -3,8 +3,6 @@ package com.cmu.ldf;
 import com.cmu.message.MembershipMessage;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -42,7 +40,6 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
         InetAddress inet;
         Socket socket = null;
         OutputStream outputStream = null;
-        InputStream inputStream = null;
         ObjectOutputStream objectOutputStream = null;
         try {
             inet = InetAddress.getByName(reportAddress);

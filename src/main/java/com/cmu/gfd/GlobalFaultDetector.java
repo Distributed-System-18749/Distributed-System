@@ -1,19 +1,19 @@
 package com.cmu.gfd;
 
-import com.cmu.ldf.ActiveHeartBeatAndReportThread;
 import com.cmu.ldf.ActiveHeartBeatThread;
-import com.cmu.ldf.LocalFaultDetector;
-import com.cmu.message.ClientServerMessage;
-import com.cmu.message.Direction;
-import com.cmu.message.HeartbeatMessage;
 import com.cmu.message.MembershipMessage;
-import com.cmu.server.Server;
 
-import java.io.*;
-import java.net.InetAddress;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class GlobalFaultDetector {
     Set<String> membership;
