@@ -5,8 +5,8 @@ import com.cmu.message.Direction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -40,7 +40,7 @@ public class Client {
         clientPorts.add(18751);
         try {
             while (true) {
-                //new Scanner(System.in).nextLine();
+                new Scanner(System.in).nextLine();
                 List<FutureTask<ClientServerMessage>> futureTasks = new ArrayList<>();
                 for (int i = 0; i < clientServerMessages.size(); i++) {
                     FutureTask<ClientServerMessage> task = new FutureTask<>(
@@ -50,16 +50,35 @@ public class Client {
                     futureTasks.add(task);
                     new Thread(task).start();
                 }
-                int i = 0;
-                while (!futureTasks.get(i).isDone()) {
-                    i++;
-                    if (i == futureTasks.size()) {
-                        i = 0;
+//                int i = 0;
+//                while (!futureTasks.get(i).isDone()) {
+//                    i++;
+//                    if (i == futureTasks.size()) {
+//                        i = 0;
+//                    }
+//                }
+                ClientServerMessage message = null;
+                Set<Integer> set = new HashSet<>();
+                while (message == null) {
+                    int i = 0;
+                    while (!futureTasks.get(i).isDone() || set.contains(i)) {
+                        i++;
+                        if (i == futureTasks.size()) {
+                            i = 0;
+                        }
+                    }
+                    message = futureTasks.get(i).get();
+                    if (message == null) {
+                        set.add(i);
+                        if (set.size() == futureTasks.size()) {
+                            System.out.println("All the servers are dead!");
+                            return;
+                        }
                     }
                 }
                 Thread.sleep(1000);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } finally {
             System.out.println("Client End!");

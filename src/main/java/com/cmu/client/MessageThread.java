@@ -31,10 +31,10 @@ public class MessageThread implements Callable<ClientServerMessage> {
     }
 
     private boolean incAndGet(long curr) {
-        if (curr < current) {
+        if (curr <= current) {
             return false;
         }
-        current = curr + 1;
+        current = curr;
         return true;
     }
 
@@ -48,6 +48,9 @@ public class MessageThread implements Callable<ClientServerMessage> {
         ObjectInputStream objectInputStream = null;
         try {
             inet = InetAddress.getByName(remoteAddress);
+            synchronized (message) {
+                message.incRequestNum();
+            }
             socket = new Socket(inet, remotePort);
             outputStream = socket.getOutputStream();
             objectOutputStream = new ObjectOutputStream(outputStream);
@@ -69,12 +72,12 @@ public class MessageThread implements Callable<ClientServerMessage> {
                     } else {
                         System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + message);
                     }
-                    message.incRequestNum();
                 }
                 return message;
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Connection between " + message.getClientName() + " and " + message.getServerName() + " failed.");
+            //e.printStackTrace();
         } finally {
             if (socket != null) {
                 try {
