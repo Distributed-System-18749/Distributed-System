@@ -28,7 +28,7 @@ public class GlobalFaultDetector {
         lfdMap.put("lfd2", 18753);
         lfdMap.put("lfd3", 18754);
         membership = new HashSet<>();
-        this.heartbeatFreq = 2000;
+        this.heartbeatFreq = 5000;
         this.name = "GFD";
         this.port = 18755;
     }
@@ -78,6 +78,7 @@ public class GlobalFaultDetector {
 
                 MembershipMessage input = (MembershipMessage) objectInputStream.readObject();
 
+                System.out.println("Received: " + input);
                 String serverName = input.getReplicaName();
                 boolean addOrRemove = input.getAddOrRemove();
                 updateMembership(serverName, addOrRemove);
