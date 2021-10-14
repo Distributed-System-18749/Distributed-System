@@ -46,10 +46,21 @@ public class GlobalFaultDetector {
 
     }
 
+    /**
+     * create heartbeat thread towards local fault detector
+     * @param port lfd remote port
+     * @param lfdName lfd name (replica name)
+     * @return new ActiveHeartBeatThread
+     */
     public ActiveHeartBeatThread sendHeartbeat(int port, String lfdName) {
         return new ActiveHeartBeatThread(this.heartbeatFreq, "127.0.0.1", port, lfdName, this.name);
     }
 
+    /**
+     * update the membership
+     * @param serverName the replica which happens with membership change
+     * @param addOrRemove true = add, false = remove
+     */
     public void updateMembership(String serverName, boolean addOrRemove) {
         if (addOrRemove) {
             membership.add(serverName);
@@ -139,9 +150,11 @@ public class GlobalFaultDetector {
         GlobalFaultDetector gfd = new GlobalFaultDetector();
         gfd.printMembershipInfo();
         Map<String, Integer> lfds = gfd.getLfdMap();
+        // heartbeat different lfd
         for (String lfd : lfds.keySet()) {
             new Thread(gfd.sendHeartbeat(lfds.get(lfd), lfd)).start();
         }
+        // listen to membership change from lfd
         gfd.listenToLFD();
     }
 }

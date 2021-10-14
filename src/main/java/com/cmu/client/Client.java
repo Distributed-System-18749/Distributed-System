@@ -31,34 +31,32 @@ public class Client {
 
     private void transfer() {
         List<ClientServerMessage> clientServerMessages = new ArrayList<>();
+        // initialize cs-messages
         clientServerMessages.add(new ClientServerMessage(clientName, "S1", 0L, Direction.REQUEST));
         clientServerMessages.add(new ClientServerMessage(clientName, "S2", 0L, Direction.REQUEST));
         clientServerMessages.add(new ClientServerMessage(clientName, "S3", 0L, Direction.REQUEST));
-        List<Integer> clientPorts = new ArrayList<>();
-        clientPorts.add(18749);
-        clientPorts.add(18750);
-        clientPorts.add(18751);
+        // initialize server-ports
+        List<Integer> serverPorts = new ArrayList<>();
+        serverPorts.add(18749);
+        serverPorts.add(18750);
+        serverPorts.add(18751);
         try {
             while (true) {
+                // send manually
                 new Scanner(System.in).nextLine();
+                // create three tasks to connect with different server replicas
                 List<FutureTask<ClientServerMessage>> futureTasks = new ArrayList<>();
                 for (int i = 0; i < clientServerMessages.size(); i++) {
                     FutureTask<ClientServerMessage> task = new FutureTask<>(
                             new MessageThread("127.0.0.1"
-                                    , clientPorts.get(i)
+                                    , serverPorts.get(i)
                                     , clientServerMessages.get(i)));
                     futureTasks.add(task);
                     new Thread(task).start();
                 }
-//                int i = 0;
-//                while (!futureTasks.get(i).isDone()) {
-//                    i++;
-//                    if (i == futureTasks.size()) {
-//                        i = 0;
-//                    }
-//                }
                 ClientServerMessage message = null;
                 Set<Integer> set = new HashSet<>();
+                // try to find the task with good end
                 while (message == null) {
                     int i = 0;
                     while (!futureTasks.get(i).isDone() || set.contains(i)) {

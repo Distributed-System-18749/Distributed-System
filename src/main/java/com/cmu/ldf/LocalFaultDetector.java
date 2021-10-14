@@ -33,6 +33,7 @@ public class LocalFaultDetector {
     public void transfer() {
         boolean check = true;
         int heartbeatFreq = 1000;
+        // input the heartbeat frequency
         while (check) {
             System.out.print("Scan the heartbeat frequency you need: ");
             Scanner scanner = new Scanner(System.in);

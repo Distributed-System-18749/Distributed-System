@@ -24,6 +24,12 @@ public class MessageThread implements Callable<ClientServerMessage> {
 
     private static long current = 0L;
 
+    /**
+     * MessageThread Constructor
+     * @param remoteAddress the remote address this thread will connect with
+     * @param remotePort the remote port this thread will connect with
+     * @param clientServerMessage the cs-message this thread will transfer to the remote server replica
+     */
     public MessageThread(String remoteAddress, Integer remotePort, ClientServerMessage clientServerMessage) {
         this.remoteAddress = remoteAddress;
         this.remotePort = remotePort;
@@ -48,6 +54,7 @@ public class MessageThread implements Callable<ClientServerMessage> {
         ObjectInputStream objectInputStream = null;
         try {
             inet = InetAddress.getByName(remoteAddress);
+            // increase the message counter first
             synchronized (message) {
                 message.incRequestNum();
             }
@@ -63,6 +70,7 @@ public class MessageThread implements Callable<ClientServerMessage> {
             objectInputStream = new ObjectInputStream(inputStream);
             Object input = objectInputStream.readObject();
             if (input instanceof ClientServerMessage) {
+                // different messages shouldn't change current counter at the same time
                 synchronized (MessageThread.class) {
                     message.setDirection(((ClientServerMessage) input).getDirection());
                     if (!incAndGet(message.getRequestNum())) {

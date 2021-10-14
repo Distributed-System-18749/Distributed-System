@@ -46,6 +46,7 @@ public class ActiveHeartBeatAndReportThread extends ActiveHeartBeatThread implem
             socket = new Socket(inet, reportPort);
             outputStream = socket.getOutputStream();
             objectOutputStream = new ObjectOutputStream(outputStream);
+            // report the membership change message to the higher level
             objectOutputStream.writeObject(membershipMessage);
             System.out.println(System.currentTimeMillis() + " " + membershipMessage + " Sent");
 

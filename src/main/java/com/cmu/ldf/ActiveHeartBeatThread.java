@@ -82,6 +82,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
                 check = false;
                 System.out.println("HeartBeating the " + replicaName + " failed. Now try again.");
             } finally {
+                // check the membership change
                 if (check != replicaStatus) {
                     replicaStatus = check;
                     MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus);
