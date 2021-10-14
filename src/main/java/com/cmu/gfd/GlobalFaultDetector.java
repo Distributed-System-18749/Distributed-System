@@ -16,11 +16,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class GlobalFaultDetector {
-    Set<String> membership;
-    Map<String, Integer> lfdMap;
-    int heartbeatFreq;
-    int port;
-    String name;
+    private Set<String> membership;
+    private Map<String, Integer> lfdMap;
+    private int heartbeatFreq;
+    private int port;
+    private String name;
 
     public GlobalFaultDetector() {
         lfdMap = new HashMap<>();
