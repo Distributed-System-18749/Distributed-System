@@ -1,6 +1,7 @@
 package com.cmu.client;
 
 import com.cmu.message.ClientServerMessage;
+import com.cmu.message.Direction;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,6 +81,7 @@ public class MessageThread implements Callable<ClientServerMessage> {
                     } else {
                         System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + message);
                     }
+                    message.setDirection(Direction.REQUEST);
                 }
                 return message;
             }
