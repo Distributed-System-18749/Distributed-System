@@ -5,9 +5,18 @@ import com.cmu.message.Direction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+
+import static com.cmu.config.GlobalConfig.SERVER1_ADDRESS;
+import static com.cmu.config.GlobalConfig.SERVER2_ADDRESS;
+import static com.cmu.config.GlobalConfig.SERVER3_ADDRESS;
+import static com.cmu.config.GlobalConfig.SERVER_PORT;
 
 /**
  * @author gongyiming
@@ -37,9 +46,14 @@ public class Client {
         clientServerMessages.add(new ClientServerMessage(clientName, "S3", 0L, Direction.REQUEST));
         // initialize server-ports
         List<Integer> serverPorts = new ArrayList<>();
-        serverPorts.add(18749);
-        serverPorts.add(18750);
-        serverPorts.add(18751);
+        serverPorts.add(SERVER_PORT);
+        serverPorts.add(SERVER_PORT);
+        serverPorts.add(SERVER_PORT);
+        // initialize server-ports
+        List<String> serverAddress = new ArrayList<>();
+        serverAddress.add(SERVER1_ADDRESS);
+        serverAddress.add(SERVER2_ADDRESS);
+        serverAddress.add(SERVER3_ADDRESS);
         try {
             while (true) {
                 // send manually
@@ -48,7 +62,7 @@ public class Client {
                 List<FutureTask<ClientServerMessage>> futureTasks = new ArrayList<>();
                 for (int i = 0; i < clientServerMessages.size(); i++) {
                     FutureTask<ClientServerMessage> task = new FutureTask<>(
-                            new MessageThread("127.0.0.1"
+                            new MessageThread(serverAddress.get(i)
                                     , serverPorts.get(i)
                                     , clientServerMessages.get(i)));
                     futureTasks.add(task);

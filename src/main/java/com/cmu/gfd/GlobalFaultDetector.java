@@ -10,31 +10,46 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
+
+import static com.cmu.config.GlobalConfig.GFD_PORT;
+import static com.cmu.config.GlobalConfig.LFD_PORT;
+import static com.cmu.config.GlobalConfig.SERVER1_ADDRESS;
+import static com.cmu.config.GlobalConfig.SERVER2_ADDRESS;
+import static com.cmu.config.GlobalConfig.SERVER3_ADDRESS;
 
 public class GlobalFaultDetector {
     private Set<String> membership;
-    private Map<String, Integer> lfdMap;
     private int heartbeatFreq;
     private int port;
     private String name;
+    private List<String> serverAddress;
+    private List<Integer> serverPorts;
 
     public GlobalFaultDetector() {
-        lfdMap = new HashMap<>();
-        lfdMap.put("lfd1", 18752);
-        lfdMap.put("lfd2", 18753);
-        lfdMap.put("lfd3", 18754);
         membership = new HashSet<>();
         this.heartbeatFreq = 5000;
         this.name = "GFD";
-        this.port = 18755;
+        this.port = GFD_PORT;
+        serverPorts = new ArrayList<>();
+        serverPorts.add(LFD_PORT);
+        serverPorts.add(LFD_PORT);
+        serverPorts.add(LFD_PORT);
+        serverAddress = new ArrayList<>();
+        serverAddress.add(SERVER1_ADDRESS);
+        serverAddress.add(SERVER2_ADDRESS);
+        serverAddress.add(SERVER3_ADDRESS);
     }
 
-    public Map<String, Integer> getLfdMap() {
-        return lfdMap;
+    public List<String> getServerAddress() {
+        return serverAddress;
+    }
+
+    public List<Integer> getServerPorts() {
+        return serverPorts;
     }
 
     public int getMemberCount() {
@@ -43,7 +58,6 @@ public class GlobalFaultDetector {
 
     public void printMembershipInfo() {
         System.out.println("GFD: " + getMemberCount() + " members: " + membership.toString());
-
     }
 
     /**
@@ -52,8 +66,8 @@ public class GlobalFaultDetector {
      * @param lfdName lfd name (replica name)
      * @return new ActiveHeartBeatThread
      */
-    public ActiveHeartBeatThread sendHeartbeat(int port, String lfdName) {
-        return new ActiveHeartBeatThread(this.heartbeatFreq, "127.0.0.1", port, lfdName, this.name);
+    public ActiveHeartBeatThread sendHeartbeat(int port, String lfdName, String address) {
+        return new ActiveHeartBeatThread(this.heartbeatFreq, address, port, lfdName, this.name);
     }
 
     /**
@@ -149,10 +163,11 @@ public class GlobalFaultDetector {
         System.out.println("Launching the GFD!");
         GlobalFaultDetector gfd = new GlobalFaultDetector();
         gfd.printMembershipInfo();
-        Map<String, Integer> lfds = gfd.getLfdMap();
         // heartbeat different lfd
-        for (String lfd : lfds.keySet()) {
-            new Thread(gfd.sendHeartbeat(lfds.get(lfd), lfd)).start();
+        for (int i = 0; i < gfd.getServerAddress().size(); i++) {
+            new Thread(gfd.sendHeartbeat(gfd.getServerPorts().get(i)
+                    , "lfd" + (i + 1)
+                    , gfd.getServerAddress().get(i))).start();
         }
         // listen to membership change from lfd
         gfd.listenToLFD();

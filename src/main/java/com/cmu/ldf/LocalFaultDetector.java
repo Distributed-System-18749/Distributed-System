@@ -2,6 +2,11 @@ package com.cmu.ldf;
 
 import java.util.Scanner;
 
+import static com.cmu.config.GlobalConfig.CLIENT_ADDRESS;
+import static com.cmu.config.GlobalConfig.GFD_PORT;
+import static com.cmu.config.GlobalConfig.LFD_PORT;
+import static com.cmu.config.GlobalConfig.SERVER_PORT;
+
 /**
  * @author gongyiming
  * @date 2021/9/2
@@ -20,13 +25,13 @@ public class LocalFaultDetector {
     }
 
     public static void main(String[] args) {
-        if (args.length < 4) {
-            System.out.println("Please enter correct args: lfdName lfdPort serverName serverPort");
+        if (args.length < 1) {
+            System.out.println("Please enter correct args: lfdName (choose from lfd1, lfd2, lfd3)");
             return;
         }
         System.out.println("Launching the LDF!");
         LocalFaultDetector localFaultDetector = new LocalFaultDetector(args[0],
-                Integer.parseInt(args[1]), args[2], Integer.parseInt(args[3]));
+                LFD_PORT, "S" + args[0].substring(args[0].length() - 1), SERVER_PORT);
         localFaultDetector.transfer();
     }
 
@@ -57,7 +62,7 @@ public class LocalFaultDetector {
                 , serverPort
                 , serverName
                 , name
-                , "127.0.0.1"
-                , 18755)).start();
+                , CLIENT_ADDRESS
+                , GFD_PORT)).start();
     }
 }
