@@ -45,6 +45,7 @@ public class Server {
         OutputStream outputStream = null;
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
+
         try {
             serverSocket = new ServerSocket(port);
             while (true) {
@@ -76,6 +77,9 @@ public class Server {
 
                 socket.shutdownOutput();
                 socket.close();
+                if (this.primary) {
+                    // sends myState to other server using server-server msg class
+                }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
