@@ -23,14 +23,18 @@ public class Server {
     private long myState = -1;
 
     private final int port;
+    private final boolean primary;
 
-    public Server(int port) {
+    public Server(int port, boolean primary) {
         this.port = port;
+        this.primary = primary;
     }
 
     public static void main(String[] args) {
         System.out.println("Launching the server!");
-        Server server = new Server(SERVER_PORT);
+        boolean primary;
+        primary = args[0].equals("true") ? true : false;
+        Server server = new Server(SERVER_PORT, primary);
         server.transfer();
     }
 
@@ -59,9 +63,12 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                 } else if (input instanceof ClientServerMessage) {
                     System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_" + ((ClientServerMessage) input).getServerName() + " = " + myState + " before processing " + input);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_"
+                            + ((ClientServerMessage) input).getServerName() + " = " + myState + " before processing "
+                            + input);
                     myState = ((ClientServerMessage) input).getRequestNum();
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " after processing " + input);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState
+                            + " after processing " + input);
                     ((ClientServerMessage) input).setDirection(Direction.REPLY);
                     System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
                     objectOutputStream.writeObject(input);
@@ -119,4 +126,5 @@ public class Server {
         }
 
     }
+
 }
