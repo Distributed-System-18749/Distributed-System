@@ -1,5 +1,6 @@
 package com.cmu.server;
 
+import com.cmu.message.ServerServerMessage;
 import com.cmu.message.ClientServerMessage;
 import com.cmu.message.Direction;
 import com.cmu.message.HeartbeatMessage;
@@ -74,12 +75,18 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
                     objectOutputStream.writeObject(input);
                 }
+                // if server is primary need to sends my state
+                if (this.primary) {
+                    // sends myState to other server using server-server msg class
+                } else {
+                    // if server is not pirmary, receives checkpoint(copy) from the primary
+                    if (input instanceof ServerServerMessage) {
+                        // receives myState
+                    }
+                }
 
                 socket.shutdownOutput();
                 socket.close();
-                if (this.primary) {
-                    // sends myState to other server using server-server msg class
-                }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
