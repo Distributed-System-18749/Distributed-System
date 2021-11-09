@@ -48,8 +48,8 @@ public class GlobalConfig {
         LFD_MAP.put("lfd1", SERVER1_ADDRESS);
         LFD_MAP.put("lfd2", SERVER2_ADDRESS);
         LFD_MAP.put("lfd3", SERVER3_ADDRESS);
-        SERVER_MAP.put("sa1", SERVER1_ADDRESS);
-        SERVER_MAP.put("sa2", SERVER2_ADDRESS);
-        SERVER_MAP.put("sa3", SERVER3_ADDRESS);
+        SERVER_MAP.put("S1", SERVER1_ADDRESS);
+        SERVER_MAP.put("S2", SERVER2_ADDRESS);
+        SERVER_MAP.put("S3", SERVER3_ADDRESS);
     }
 }
