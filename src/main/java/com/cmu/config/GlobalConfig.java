@@ -26,6 +26,8 @@ public class GlobalConfig {
 
     public static final Map<String, String> LFD_MAP;
 
+    public static final Map<String, String> SERVER_MAP;
+
     static {
         Properties properties = new Properties();
         try {
@@ -42,8 +44,12 @@ public class GlobalConfig {
         CLIENT_ADDRESS = properties.getProperty("CLIENTA");
         GFD_PORT = Integer.parseInt(properties.getProperty("GFDP"));
         LFD_MAP = new HashMap<>();
+        SERVER_MAP = new HashMap<>();
         LFD_MAP.put("lfd1", SERVER1_ADDRESS);
         LFD_MAP.put("lfd2", SERVER2_ADDRESS);
         LFD_MAP.put("lfd3", SERVER3_ADDRESS);
+        SERVER_MAP.put("sa1", SERVER1_ADDRESS);
+        SERVER_MAP.put("sa2", SERVER2_ADDRESS);
+        SERVER_MAP.put("sa3", SERVER3_ADDRESS);
     }
 }

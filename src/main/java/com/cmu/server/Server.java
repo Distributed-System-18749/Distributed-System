@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static com.cmu.config.GlobalConfig.SERVER_PORT;
+import static com.cmu.config.GlobalConfig.*;
 
 /**
  * @author gongyiming
@@ -34,7 +34,8 @@ public class Server {
     public static void main(String[] args) {
         System.out.println("Launching the server!");
         boolean primary;
-        primary = args[0].equals("true") ? true : false;
+        // address =agrs[0]
+        primary = args[1].equals("true") ? true : false;
         Server server = new Server(SERVER_PORT, primary);
         server.transfer();
     }
