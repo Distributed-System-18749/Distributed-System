@@ -63,9 +63,7 @@ public class Server {
         boolean primary;
         // select S1 as the primary server
         String myName = "S1";
-
         String myAddress = SERVER_MAP.get(myName);
-
         primary = myAddress.equals(SERVER1_ADDRESS) ? true : false;
         Server server = new Server(SERVER_PORT, primary, myAddress, myName);
         server.transfer();
