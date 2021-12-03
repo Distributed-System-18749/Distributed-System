@@ -61,13 +61,12 @@ public class Server {
     public static void main(String[] args) {
         System.out.println("Launching the server!");
         boolean primary;
-        // what should the name of server be like, "S1"?
-        String myName = args[0];
+        // select S1 as the primary server
+        String myName = "S1";
 
-        // how can I find the matched address using this this serverName
         String myAddress = SERVER_MAP.get(myName);
 
-        primary = args[1].equals("true") ? true : false;
+        primary = myAddress.equals(SERVER1_ADDRESS) ? true : false;
         Server server = new Server(SERVER_PORT, primary, myAddress, myName);
         server.transfer();
     }
