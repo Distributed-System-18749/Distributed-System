@@ -38,7 +38,7 @@ public class Server {
     private long[] myStateReference = new long[1];
 
     private final int port;
-    private final boolean primary;
+    private boolean primary;//the membership might be changed
     private final String myAddress;
     private List<String> serverAddress;
     private int checkpointFreq;
@@ -78,7 +78,7 @@ public class Server {
         ObjectInputStream objectInputStream = null;
 
         try {
-            // if server is primary need to sends my state
+            // if server is primary need to send my state
             if (this.primary) {
                 // sends myState to other server using server-server msg class and open two
                 // threads(but how can I quiesce????)
@@ -140,6 +140,21 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_"
                             + ((ServerServerMessage) input).getBackupName() + " = " + myState + " after processing "
                             + input);
+                } else if (input instanceof PrimaryMessage && !this.primary) {//the backup becomes the primary
+                    this.primary = true;
+                    for (int i = 0; i < serverAddress.size(); i++) {//do what the primary did at the beginning
+                        String address = serverAddress.get(i);
+                        if (!address.equals(myAddress)) {
+                            // What should be the address written here?
+                            new Thread(new CheckpointThread(checkpointFreq, address, SERVER_PORT,
+                                    "S" + String.valueOf(i + 1), myName, myStateReference)).start();
+                            //GFD里打算成员set里挑选剩下的其中一个作为新的primary，通知lfd，lfd发PrimaryMessage给server；
+                            //log只保留一个值，每次收到client信息就把这个值加1，checkpoint来的时候，把log的值变成checkpoint里的状态；
+                            //作为新的primary时比较myState和log里的值的大小，选择较大的值
+                            //作为最新状态给另外两个server建立checkpoint通道
+                            //另外myState应该变更成数组，每个client有自己独立的state可以改变
+                        }
+                    }
                 }
 
                 socket.shutdownOutput();

@@ -1,4 +1,4 @@
-∆package com.cmu.gfd;
+package com.cmu.gfd;
 
 import com.cmu.ldf.ActiveHeartBeatThread;
 import com.cmu.message.MembershipMessage;

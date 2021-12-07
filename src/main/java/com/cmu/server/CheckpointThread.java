@@ -35,7 +35,7 @@ public class CheckpointThread implements Runnable {
      * @param checkpointFreq   checkpoint frequency
      * @param remoteAddress    remoteAddress remote address without port number
      * @param remotePort       remote port number
-     * @param backName         the name of the backup replica receving messages from
+     * @param backupName         the name of the backup replica receving messages from
      *                         this thread
      * @param primaryName      the name of the primary replica
      * @param myStateReference myState in a long[]
