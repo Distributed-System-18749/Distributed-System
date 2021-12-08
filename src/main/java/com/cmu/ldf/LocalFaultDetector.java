@@ -16,6 +16,7 @@ public class LocalFaultDetector {
     private int serverPort;
     private String name;
     private String serverName;
+    public static Boolean primaryServer;
 
     public LocalFaultDetector(String name, int port, String serverName, int serverPort) {
         this.name = name;

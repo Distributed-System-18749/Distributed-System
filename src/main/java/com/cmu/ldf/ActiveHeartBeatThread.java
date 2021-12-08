@@ -57,7 +57,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
         InputStream inputStream = null;
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
-        HeartbeatMessage message = new HeartbeatMessage(sourceName, replicaName, 1, Direction.REQUEST);
+        HeartbeatMessage message = new HeartbeatMessage(sourceName, replicaName, 1, Direction.REQUEST, false);
         while (true) {
             boolean check = true;
             try {
@@ -85,7 +85,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
                 // check the membership change
                 if (check != replicaStatus) {
                     replicaStatus = check;
-                    MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus);
+                    MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus, );
                     // report replica status change to the higher level
                     report(membershipMessage);
                 }

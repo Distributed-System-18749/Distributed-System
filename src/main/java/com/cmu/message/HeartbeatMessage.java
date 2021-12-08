@@ -15,6 +15,7 @@ public class HeartbeatMessage implements Serializable {
     private String sender;
     private Integer num;
     private Direction direction;
+    private Boolean primaryOrNot;
 
     public void incNum() {
         num++;

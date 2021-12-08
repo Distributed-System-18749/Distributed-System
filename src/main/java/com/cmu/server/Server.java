@@ -1,12 +1,9 @@
 package com.cmu.server;
 
-import com.cmu.message.ServerServerMessage;
+import com.cmu.message.*;
 
 import com.cmu.server.CheckpointThread;
 
-import com.cmu.message.ClientServerMessage;
-import com.cmu.message.Direction;
-import com.cmu.message.HeartbeatMessage;
 import com.cmu.server.CheckpointThread;
 
 import java.io.IOException;
@@ -106,6 +103,7 @@ public class Server {
                 if (input instanceof HeartbeatMessage) {
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Received");
                     ((HeartbeatMessage) input).setDirection(Direction.REPLY);
+                    ((HeartbeatMessage) input).setPrimaryOrNot(this.primary);
                     objectOutputStream.writeObject(input);
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                 } else if (input instanceof ClientServerMessage && this.primary) {
@@ -148,11 +146,6 @@ public class Server {
                             // What should be the address written here?
                             new Thread(new CheckpointThread(checkpointFreq, address, SERVER_PORT,
                                     "S" + String.valueOf(i + 1), myName, myStateReference)).start();
-                            //GFD里打算成员set里挑选剩下的其中一个作为新的primary，通知lfd，lfd发PrimaryMessage给server；
-                            //log只保留一个值，每次收到client信息就把这个值加1，checkpoint来的时候，把log的值变成checkpoint里的状态；
-                            //作为新的primary时比较myState和log里的值的大小，选择较大的值
-                            //作为最新状态给另外两个server建立checkpoint通道
-                            //另外myState应该变更成数组，每个client有自己独立的state可以改变
                         }
                     }
                 }

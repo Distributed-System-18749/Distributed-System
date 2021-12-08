@@ -19,6 +19,10 @@ public class MembershipMessage implements Serializable {
      * true = add, false = remove
      */
     private Boolean addOrRemove;
+    /**
+     * true = primary, false = not primary
+     */
+    private Boolean primaryOrNot;
 
     @Override
     public String toString() {
