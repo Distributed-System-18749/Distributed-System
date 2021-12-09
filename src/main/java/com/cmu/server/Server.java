@@ -82,7 +82,7 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "]" + "Received checkpoint: " + input);
                     isReady = true;
                 } else if (input instanceof PrimaryMessage) {
-                    String replicaName = ((CheckpointMessage) input).getBackupName();
+                    String replicaName = ((PrimaryMessage) input).getOldPrimary();
                     new Thread(new ActiveCheckpointThread(
                             SERVER_MAP.get(replicaName),
                             SERVER_PORT,

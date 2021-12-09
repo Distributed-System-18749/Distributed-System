@@ -1,10 +1,13 @@
 package com.cmu.ldf;
 
 import com.cmu.message.CheckpointMessage;
-import com.cmu.message.Direction;
 import lombok.AllArgsConstructor;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -29,53 +32,53 @@ public class ActiveCheckpointThread implements Runnable{
         CheckpointMessage message = new CheckpointMessage(primaryName, backupName, myState);
         //ServerServerMessage message = new ServerServerMessage(primaryName, backupName, myState, 1L, Direction.REQUEST);
 
-            try {
-                inet = InetAddress.getByName(replicaAddress);
-                socket = new Socket(inet, replicaPort);
-                outputStream = socket.getOutputStream();
-                objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(message);
-                System.out.println(System.currentTimeMillis() + " " + message + " Sent");
-                socket.shutdownOutput();
-                socket.close();
-            } catch (IOException e) {
-                System.out.println("Checkpoint the " + backupName + " failed.");
-            } finally {
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (objectInputStream != null) {
-                    try {
-                        objectInputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (objectOutputStream != null) {
-                    try {
-                        objectOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        try {
+            inet = InetAddress.getByName(replicaAddress);
+            socket = new Socket(inet, replicaPort);
+            outputStream = socket.getOutputStream();
+            objectOutputStream = new ObjectOutputStream(outputStream);
+            objectOutputStream.writeObject(message);
+            System.out.println(System.currentTimeMillis() + " " + message + "Checkpoint Sent");
+            socket.shutdownOutput();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Checkpoint the " + backupName + " failed.");
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (objectInputStream != null) {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (objectOutputStream != null) {
+                try {
+                    objectOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

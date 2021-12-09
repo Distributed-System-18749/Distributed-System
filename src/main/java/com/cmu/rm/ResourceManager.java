@@ -12,9 +12,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import static com.cmu.config.GlobalConfig.RM_PORT;
 import static com.cmu.config.GlobalConfig.SERVER_MAP;
@@ -56,6 +54,11 @@ public class ResourceManager {
             String first = membership.get(0);
             PrimaryMessage primaryMessage = new PrimaryMessage(message.getReplicaName(), first);
             recoverBackUp(serverName);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             electNewPrimary(first, serverName, primaryMessage);
         }
 
