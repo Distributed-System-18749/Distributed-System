@@ -87,7 +87,6 @@ public class MessageThread implements Callable<ClientServerMessage> {
             }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Connection between " + message.getClientName() + " and " + message.getServerName() + " failed.");
-            e.printStackTrace();
         } finally {
             if (socket != null) {
                 try {
