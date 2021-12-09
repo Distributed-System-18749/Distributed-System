@@ -1,8 +1,7 @@
 package com.cmu.server;
 
-import com.cmu.message.ClientServerMessage;
-import com.cmu.message.Direction;
-import com.cmu.message.HeartbeatMessage;
+import com.cmu.ldf.ActiveCheckpointThread;
+import com.cmu.message.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +11,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static com.cmu.config.GlobalConfig.SERVER_MAP;
 import static com.cmu.config.GlobalConfig.SERVER_PORT;
 
 /**
@@ -23,14 +23,23 @@ public class Server {
     private long myState = -1;
 
     private final int port;
+    private boolean isReady;
+    private String name;
 
-    public Server(int port) {
+    public Server(String name, int port, boolean isReady) {
         this.port = port;
+        this.isReady = isReady;
+        this.name = name;
     }
 
     public static void main(String[] args) {
         System.out.println("Launching the server!");
-        Server server = new Server(SERVER_PORT);
+        String myName = args[0];
+        boolean isReady = true;
+        if (args.length > 1) {
+             isReady = false;
+        }
+        Server server = new Server(myName, SERVER_PORT, isReady);
         server.transfer();
     }
 
@@ -58,13 +67,29 @@ public class Server {
                     objectOutputStream.writeObject(input);
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
                 } else if (input instanceof ClientServerMessage) {
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_" + ((ClientServerMessage) input).getServerName() + " = " + myState + " before processing " + input);
                     myState = ((ClientServerMessage) input).getRequestNum();
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " after processing " + input);
-                    ((ClientServerMessage) input).setDirection(Direction.REPLY);
-                    System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
-                    objectOutputStream.writeObject(input);
+                    if (this.isReady) {
+                        System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
+                        System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_" + ((ClientServerMessage) input).getServerName() + " = " + myState + " before processing " + input);
+                        System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_s1 = " + myState + " after processing " + input);
+                        ((ClientServerMessage) input).setDirection(Direction.REPLY);
+                        System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
+                        objectOutputStream.writeObject(input);
+                    }
+                } else if (input instanceof CheckpointMessage) {
+                    long state = ((CheckpointMessage) input).getMyState();
+                    myState = Math.max(state, myState);
+                    System.out.println("[" + System.currentTimeMillis() + "]" + "Received checkpoint: " + input);
+                    isReady = true;
+                } else if (input instanceof PrimaryMessage) {
+                    String replicaName = ((CheckpointMessage) input).getBackupName();
+                    new Thread(new ActiveCheckpointThread(
+                            SERVER_MAP.get(replicaName),
+                            SERVER_PORT,
+                            myState,
+                            name,
+                            replicaName
+                    )).start();
                 }
 
                 socket.shutdownOutput();

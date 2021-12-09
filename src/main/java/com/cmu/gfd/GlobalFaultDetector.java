@@ -15,14 +15,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.cmu.ldf.ActiveHeartBeatAndReportThread;
 import static com.cmu.config.GlobalConfig.GFD_PORT;
 import static com.cmu.config.GlobalConfig.LFD_PORT;
+import static com.cmu.config.GlobalConfig.RM_PORT;
 import static com.cmu.config.GlobalConfig.SERVER1_ADDRESS;
 import static com.cmu.config.GlobalConfig.SERVER2_ADDRESS;
 import static com.cmu.config.GlobalConfig.SERVER3_ADDRESS;
 
 public class GlobalFaultDetector {
-    private Set<String> membership;
+    private HashSet<String> membership;
     private int heartbeatFreq;
     private int port;
     private String name;
@@ -75,7 +77,7 @@ public class GlobalFaultDetector {
      * @param serverName the replica which happens with membership change
      * @param addOrRemove true = add, false = remove
      */
-    public void updateMembership(String serverName, boolean addOrRemove) {
+    public void updateMembership(String serverName, boolean addOrRemove, MembershipMessage message) {
         if (addOrRemove) {
             membership.add(serverName);
             printMembershipInfo();
@@ -83,6 +85,16 @@ public class GlobalFaultDetector {
             membership.remove(serverName);
             printMembershipInfo();
         }
+        ActiveHeartBeatAndReportThread prototype = new ActiveHeartBeatAndReportThread(
+                0,
+                "",
+                0,
+                "",
+                "",
+                "127.0.0.1",
+                RM_PORT);
+        Thread reportThread = new Thread(() -> prototype.report(message));
+        reportThread.start();
     }
 
     public void listenToLFD() {
@@ -106,7 +118,7 @@ public class GlobalFaultDetector {
                 System.out.println("Received: " + input);
                 String serverName = input.getReplicaName();
                 boolean addOrRemove = input.getAddOrRemove();
-                updateMembership(serverName, addOrRemove);
+                updateMembership(serverName, addOrRemove, input);
 
                 socket.shutdownOutput();
                 socket.close();
