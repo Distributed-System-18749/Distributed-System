@@ -76,6 +76,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
                 if (input instanceof HeartbeatMessage) {
                     System.out.println(System.currentTimeMillis() + " " + input + " Received");
                     message.incNum();
+                    message.setPrimaryOrNot(((HeartbeatMessage) input).getPrimaryOrNot());
                 }
                 socket.close();
             } catch (IOException | ClassNotFoundException e) {
@@ -85,7 +86,7 @@ public class ActiveHeartBeatThread implements Runnable, Report{
                 // check the membership change
                 if (check != replicaStatus) {
                     replicaStatus = check;
-                    MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus, );
+                    MembershipMessage membershipMessage = new MembershipMessage(replicaName, replicaStatus, message.getPrimaryOrNot());
                     // report replica status change to the higher level
                     report(membershipMessage);
                 }

@@ -28,6 +28,8 @@ public class GlobalConfig {
 
     public static final Map<String, String> SERVER_MAP;
 
+    public static final Integer RM_PORT;
+
     static {
         Properties properties = new Properties();
         try {
@@ -51,5 +53,6 @@ public class GlobalConfig {
         SERVER_MAP.put("S1", SERVER1_ADDRESS);
         SERVER_MAP.put("S2", SERVER2_ADDRESS);
         SERVER_MAP.put("S3", SERVER3_ADDRESS);
+        RM_PORT = Integer.parseInt(properties.getProperty("RMP"));
     }
 }

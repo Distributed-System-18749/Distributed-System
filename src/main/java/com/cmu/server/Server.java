@@ -1,10 +1,10 @@
 package com.cmu.server;
 
-import com.cmu.message.*;
-
-import com.cmu.server.CheckpointThread;
-
-import com.cmu.server.CheckpointThread;
+import com.cmu.message.ClientServerMessage;
+import com.cmu.message.Direction;
+import com.cmu.message.HeartbeatMessage;
+import com.cmu.message.PrimaryMessage;
+import com.cmu.message.ServerServerMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +13,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.cmu.config.GlobalConfig.SERVER1_ADDRESS;
 import static com.cmu.config.GlobalConfig.SERVER2_ADDRESS;
@@ -59,9 +59,12 @@ public class Server {
         System.out.println("Launching the server!");
         boolean primary;
         // select S1 as the primary server
-        String myName = "S1";
+        String myName = args[0];
         String myAddress = SERVER_MAP.get(myName);
         primary = myAddress.equals(SERVER1_ADDRESS) ? true : false;
+        if (args.length > 1) {
+            primary = false;
+        }
         Server server = new Server(SERVER_PORT, primary, myAddress, myName);
         server.transfer();
     }
@@ -73,6 +76,7 @@ public class Server {
         OutputStream outputStream = null;
         ObjectOutputStream objectOutputStream = null;
         ObjectInputStream objectInputStream = null;
+        boolean ready = this.primary;
 
         try {
             // if server is primary need to send my state
@@ -106,23 +110,27 @@ public class Server {
                     ((HeartbeatMessage) input).setPrimaryOrNot(this.primary);
                     objectOutputStream.writeObject(input);
                     System.out.println("[" + System.currentTimeMillis() + "] " + input + " Sent");
-                } else if (input instanceof ClientServerMessage && this.primary) {
+                } else if (input instanceof ClientServerMessage) {
                     // only primary replica deals with client's request
                     synchronized (Server.class) {
-                        System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
-                        System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_"
-                                + ((ClientServerMessage) input).getServerName() + " = " + myState
-                                + " before processing " + input);
-                        myState = ((ClientServerMessage) input).getRequestNum();
+                        if (this.primary) {
+                            System.out.println("[" + System.currentTimeMillis() + "]" + " Received " + input);
+                            System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_"
+                                    + ((ClientServerMessage) input).getServerName() + " = " + myState
+                                    + " before processing " + input);
+                            myState = ((ClientServerMessage) input).getRequestNum();
 
-                        // the state in myStateReference should also be changed
-                        myStateReference[0] = myState;
-                        // Some problem with "my_state_s1". why is it always s1???
-                        System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_ = " + myState
-                                + " after processing " + input);
-                        ((ClientServerMessage) input).setDirection(Direction.REPLY);
-                        System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
-                        objectOutputStream.writeObject(input);
+                            // the state in myStateReference should also be changed
+                            myStateReference[0] = myState;
+                            // Some problem with "my_state_s1". why is it always s1???
+                            System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_ = " + myState
+                                    + " after processing " + input);
+                            ((ClientServerMessage) input).setDirection(Direction.REPLY);
+                            System.out.println("[" + System.currentTimeMillis() + "]" + " Sending " + input);
+                            objectOutputStream.writeObject(input);
+                        } else {
+                            myState = ((ClientServerMessage) input).getRequestNum();
+                        }
                     }
                 } else if (input instanceof ServerServerMessage && !this.primary) {
                     // only backup deals with receiving checkpoints
@@ -138,9 +146,17 @@ public class Server {
                     System.out.println("[" + System.currentTimeMillis() + "]" + " my_state_"
                             + ((ServerServerMessage) input).getBackupName() + " = " + myState + " after processing "
                             + input);
-                } else if (input instanceof PrimaryMessage && !this.primary) {//the backup becomes the primary
+                    if (!ready) {
+                        ready = true;
+                        System.out.println("Now " + myName + " is ready!");
+                    }
+
+                } else if (input instanceof PrimaryMessage && !this.primary) {
+                    //the backup becomes the primary
+                    System.out.println(System.currentTimeMillis() + " " + input + " Received");
                     this.primary = true;
-                    for (int i = 0; i < serverAddress.size(); i++) {//do what the primary did at the beginning
+                    for (int i = 0; i < serverAddress.size(); i++) {
+                        //do what the primary did at the beginning
                         String address = serverAddress.get(i);
                         if (!address.equals(myAddress)) {
                             // What should be the address written here?
@@ -148,6 +164,9 @@ public class Server {
                                     "S" + String.valueOf(i + 1), myName, myStateReference)).start();
                         }
                     }
+                }
+                if (!ready) {
+                    System.out.println("Still not ready!");
                 }
 
                 socket.shutdownOutput();

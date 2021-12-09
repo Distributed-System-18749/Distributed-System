@@ -83,8 +83,8 @@ public class Client {
                     if (message == null) {
                         set.add(i);
                         if (set.size() == futureTasks.size()) {
-                            System.out.println("All the servers are dead!");
-                            return;
+                            System.out.println("Cannot receive primary response, But you still can try!");
+                            break;
                         }
                     }
                 }

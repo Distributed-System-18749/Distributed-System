@@ -29,6 +29,7 @@ public class MembershipMessage implements Serializable {
         return "Membership change: " +
                 "<replicaName=" + replicaName +
                 (addOrRemove ? ", add" : ", remove") +
+                (primaryOrNot ? ", primary" : ", backup") +
                 '>';
     }
 }
